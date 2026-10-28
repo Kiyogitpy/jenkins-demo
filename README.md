@@ -50,6 +50,25 @@ Without the `webhook` profile, Jenkins still scans GitHub once a day. Click **Sc
 
 To change Jenkins settings, edit `jenkins/casc.yaml` and run `docker compose up -d jenkins` again.
 
+## Windows agent and the Wardogs patch watch
+
+`casc.yaml` also defines `wardogs-pc`, an inbound agent on the Windows host, and the job `wardogs-patch-watch`. That job
+runs [`jenkins/patch-watch.Jenkinsfile`](https://github.com/Kiyogitpy/wardogs-data-docs/blob/main/jenkins/patch-watch.Jenkinsfile)
+from wardogs-data-docs: it needs the game install and the local tools, which only this PC has, so it cannot run on the
+Docker agent. Start the agent with:
+
+```powershell
+pwsh scripts/windows-agent.ps1
+```
+
+It downloads `agent.jar`, stores the agent secret in `C:\jenkins-agent\secret` and stays connected until stopped. To
+start it at every logon, register it once in Task Scheduler:
+
+```powershell
+$a = New-ScheduledTaskAction -Execute pwsh -Argument "-NoProfile -WindowStyle Hidden -File `"$PWD\scripts\windows-agent.ps1`""
+Register-ScheduledTask jenkins-wardogs-agent -Action $a -Trigger (New-ScheduledTaskTrigger -AtLogOn -User $env:USERNAME)
+```
+
 ## Backups
 
 ```sh

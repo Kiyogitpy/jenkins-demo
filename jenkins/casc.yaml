@@ -37,6 +37,16 @@ jenkins:
             credentialsId: agent-ssh
             # The agent is a container on a private compose network, so its host key is not pinned.
             sshHostKeyVerificationStrategy: nonVerifyingKeyVerificationStrategy
+    # Windows host agent for jobs that need local files, started by scripts/windows-agent.ps1.
+    - permanent:
+        name: wardogs-pc
+        labelString: windows wardogs
+        remoteFS: C:/jenkins-agent
+        numExecutors: 1
+        retentionStrategy: always
+        launcher:
+          inbound:
+            webSocket: true
 
 credentials:
   system:
@@ -113,5 +123,20 @@ jobs:
         // Webhooks trigger builds; this daily scan only catches missed events.
         triggers {
           periodicFolderTrigger { interval('1d') }
+        }
+      }
+      pipelineJob('wardogs-patch-watch') {
+        description('Runs the wardogs-data-docs patch update pipeline when Steam installs a new Wardogs build.')
+        definition {
+          cpsScm {
+            scm {
+              git {
+                remote { url('https://github.com/Kiyogitpy/wardogs-data-docs.git') }
+                branch('*/main')
+              }
+            }
+            scriptPath('jenkins/patch-watch.Jenkinsfile')
+            lightweight(true)
+          }
         }
       }
