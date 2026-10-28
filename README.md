@@ -61,13 +61,17 @@ Docker agent. Start the agent with:
 pwsh scripts/windows-agent.ps1
 ```
 
-It downloads `agent.jar`, stores the agent secret in `C:\jenkins-agent\secret` and stays connected until stopped. To
-start it at every logon, register it once in Task Scheduler:
+It downloads `agent.jar`, stores the agent secret in `C:\jenkins-agent\secret` and stays connected until stopped. The
+secret is fixed for this node, so after that first run Task Scheduler can start `javaw` (Java without a console window)
+directly at every logon. Register it once:
 
 ```powershell
-$a = New-ScheduledTaskAction -Execute pwsh -Argument "-NoProfile -WindowStyle Hidden -File `"$PWD\scripts\windows-agent.ps1`""
+$javaw = Join-Path (Split-Path (Get-Command java).Source) 'javaw.exe'
+$a = New-ScheduledTaskAction -Execute $javaw -WorkingDirectory C:\jenkins-agent -Argument '-jar C:\jenkins-agent\agent.jar -url http://localhost:8080/ -name wardogs-pc -secret @C:\jenkins-agent\secret -webSocket -workDir C:\jenkins-agent'
 Register-ScheduledTask jenkins-wardogs-agent -Action $a -Trigger (New-ScheduledTaskTrigger -AtLogOn -User $env:USERNAME)
 ```
+
+Run the script again only after `jenkins_home` is reset, because that changes the secret.
 
 ## Backups
 
