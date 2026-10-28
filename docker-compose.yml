@@ -3,6 +3,7 @@ name: jenkins-demo
 services:
   jenkins:
     build: ./jenkins
+    restart: unless-stopped
     ports:
       - "8080:8080"
     env_file: .env
@@ -17,6 +18,7 @@ services:
 
   agent:
     build: ./agent
+    restart: unless-stopped
     environment:
       JENKINS_AGENT_SSH_PUBKEY: ${JENKINS_AGENT_SSH_PUBKEY}
     volumes:
