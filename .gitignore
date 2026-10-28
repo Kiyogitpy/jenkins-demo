@@ -1,2 +1,7 @@
 __pycache__/
 *.pyc
+.venv/
+reports/
+.env
+secrets/
+backups/
