@@ -16,12 +16,13 @@ docker compose exec jenkins cat /var/jenkins_home/secrets/initialAdminPassword
 1. Open http://localhost:8080 and paste the password.
 2. Choose "Install suggested plugins" and create an admin user.
 3. Click **New Item**, pick **Pipeline** and name it `jenkins-demo`.
-4. Under **Pipeline**, set **Definition** to *Pipeline script from SCM*, **SCM** to *Git*, **Repository URL** to `file:///repo` and **Branch** to `*/main`.
-5. Click **Build Now**.
+4. Under **Build Triggers**, tick **Poll SCM** and set the schedule to `H/2 * * * *`.
+5. Under **Pipeline**, set **Definition** to *Pipeline script from SCM*, **SCM** to *Git*, **Repository URL** to `https://github.com/Kiyogitpy/jenkins-demo.git` and **Branch** to `*/main`.
+6. Click **Build Now**.
 
 The deployed app runs at http://localhost:5000.
 
-Jenkins builds committed code only, so commit your changes before you start a build.
+Jenkins checks GitHub every 2 minutes and builds each new commit on `main`, so pushing is enough to start a build.
 
 ## Run tests locally
 
